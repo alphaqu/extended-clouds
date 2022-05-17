@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "extendedclouds",
+  "version": "${version}",
+  "name": "Extended Clouds",
+  "icon": "assets/extendedclouds/icon.png",
+  "description": "Makes clouds render further out.",
+  "authors": [
+    "notequalalpha"
+  ],
+  "environment": "client",
+  "mixins": [
+    "extendedclouds.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.13.3",
+    "minecraft": "~1.18.2",
+    "java": ">=17"
+  }
+}
