@@ -39,7 +39,7 @@ public class WorldRendererMixin {
 	}
 
 	@ModifyConstant(
-			method = "renderClouds(Lnet/minecraft/client/render/BufferBuilder;DDDLnet/minecraft/util/math/Vec3d;)V",
+			method = "renderClouds(Lnet/minecraft/client/render/BufferBuilder;DDDLnet/minecraft/util/math/Vec3d;)Lnet/minecraft/client/render/BufferBuilder$BuiltBuffer;",
 			constant = @Constant(intValue = -3)
 	)
 	private int fancyForStart(int constant) {
@@ -47,7 +47,7 @@ public class WorldRendererMixin {
 	}
 
 	@ModifyConstant(
-			method = "renderClouds(Lnet/minecraft/client/render/BufferBuilder;DDDLnet/minecraft/util/math/Vec3d;)V",
+			method = "renderClouds(Lnet/minecraft/client/render/BufferBuilder;DDDLnet/minecraft/util/math/Vec3d;)Lnet/minecraft/client/render/BufferBuilder$BuiltBuffer;",
 			constant = @Constant(intValue = 4)
 	)
 	private int fancyForEnd(int constant) {
@@ -55,7 +55,7 @@ public class WorldRendererMixin {
 	}
 
 	@ModifyConstant(
-			method = "renderClouds(Lnet/minecraft/client/render/BufferBuilder;DDDLnet/minecraft/util/math/Vec3d;)V",
+			method = "renderClouds(Lnet/minecraft/client/render/BufferBuilder;DDDLnet/minecraft/util/math/Vec3d;)Lnet/minecraft/client/render/BufferBuilder$BuiltBuffer;",
 			constant = @Constant(intValue = -32)
 	)
 	private int fastForStart(int constant) {
@@ -63,7 +63,7 @@ public class WorldRendererMixin {
 	}
 
 	@ModifyConstant(
-			method = "renderClouds(Lnet/minecraft/client/render/BufferBuilder;DDDLnet/minecraft/util/math/Vec3d;)V",
+			method = "renderClouds(Lnet/minecraft/client/render/BufferBuilder;DDDLnet/minecraft/util/math/Vec3d;)Lnet/minecraft/client/render/BufferBuilder$BuiltBuffer;",
 			constant = @Constant(intValue = 32)
 	)
 	private int fastForEnd(int constant) {
