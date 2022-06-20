@@ -4,17 +4,25 @@
   "version": "${version}",
   "name": "Extended Clouds",
   "icon": "assets/extendedclouds/icon.png",
-  "description": "Makes clouds render further out.",
+  "description": "Makes clouds render further out.\nDistance can be set via config file.",
   "authors": [
     "notequalalpha"
   ],
+  "contributors": [
+    "Traben"
+  ],
   "environment": "client",
+  "entrypoints": {
+    "client": [
+      "net.oskarstrom.extendedclouds.ClientEntrypoint"
+    ]
+  },
   "mixins": [
     "extendedclouds.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.13.3",
-    "minecraft": "~1.18.2",
+    "fabricloader": ">=0.14",
+    "minecraft": ">=1.19",
     "java": ">=17"
   }
 }
