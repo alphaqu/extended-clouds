@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "Extended Clouds",
   "icon": "assets/extendedclouds/icon.png",
-  "description": "Makes clouds render further out.\nDistance can be set via config file.",
+  "description": "Makes clouds render further out.",
   "authors": [
     "notequalalpha"
   ],
@@ -14,7 +14,7 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "net.oskarstrom.extendedclouds.ClientEntrypoint"
+      "net.oskarstrom.extendedclouds.ExtendedClouds"
     ]
   },
   "mixins": [

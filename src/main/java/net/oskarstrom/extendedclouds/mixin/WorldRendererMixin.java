@@ -8,10 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
-
-import static net.oskarstrom.extendedclouds.ClientEntrypoint.cloudConfigData;
-import static net.oskarstrom.extendedclouds.ClientEntrypoint.matrix4fForCloudsOnly;
+import static net.oskarstrom.extendedclouds.ExtendedClouds.CONFIG;
 
 @Mixin(WorldRenderer.class)
 public class WorldRendererMixin {
@@ -20,18 +17,12 @@ public class WorldRendererMixin {
 
 	private float oldFogEnd = 0;
 
-	@ModifyArgs(
-			method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/VertexBuffer;draw(Lnet/minecraft/util/math/Matrix4f;Lnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/Shader;)V")
-	)
-	private void injected(Args args) {
-		//replace the vanilla projection matrix with our extended one to allow further away clouds than the vanilla rendering does
-		if (matrix4fForCloudsOnly != null) args.set(1, matrix4fForCloudsOnly);
-	}
-
 	@Inject(
 			method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;push()V")
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/client/util/math/MatrixStack;push()V"
+			)
 	)
 	private void fixFoxStart(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, double d, double e, double f, CallbackInfo ci) {
 		oldFogEnd = RenderSystem.getShaderFogEnd();
@@ -40,7 +31,10 @@ public class WorldRendererMixin {
 
 	@Inject(
 			method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;pop()V")
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/client/util/math/MatrixStack;pop()V"
+			)
 	)
 	private void fixFoxEnd(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, double d, double e, double f, CallbackInfo ci) {
 		RenderSystem.setShaderFogEnd(oldFogEnd);
@@ -79,10 +73,7 @@ public class WorldRendererMixin {
 	}
 
 	//config support for distance scaling
-	private int viewDistanceModified(){
-		return  (int) (viewDistance * cloudConfigData.getTestedModifier());
+	private int viewDistanceModified() {
+		return (int) (viewDistance * CONFIG.getMultiplier());
 	}
-
-
-
 }

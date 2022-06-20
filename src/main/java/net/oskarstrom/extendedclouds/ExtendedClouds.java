@@ -4,43 +4,38 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.math.Matrix4f;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class ClientEntrypoint implements ClientModInitializer {
+public class ExtendedClouds implements ClientModInitializer {
 
-    public static Config cloudConfigData;
-
-    public static Matrix4f matrix4fForCloudsOnly = null;
+    public static Config CONFIG;
 
     @Override
     public void onInitializeClient() {
-        ec$loadConfig();
+        loadConfig();
     }
 
-    public static void ec$loadConfig() {
+    public static void loadConfig() {
         File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "extended-clouds.json");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         if (config.exists()) {
             try {
                 FileReader fileReader = new FileReader(config);
-                cloudConfigData = gson.fromJson(fileReader, Config.class);
+                ExtendedClouds.CONFIG = gson.fromJson(fileReader, Config.class);
                 fileReader.close();
-                ec$saveConfig();
-            } catch (IOException e) {
-                cloudConfigData = new Config();
-                ec$saveConfig();
-            }
-        } else {
-            cloudConfigData = new Config();
-            ec$saveConfig();
+                saveConfig();
+                return;
+            } catch (IOException ignored) {}
         }
+
+        ExtendedClouds.CONFIG = new Config();
+        saveConfig();
     }
-    public static void ec$saveConfig() {
+    public static void saveConfig() {
         File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "extended-clouds.json");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         if (!config.getParentFile().exists()) {
@@ -49,7 +44,7 @@ public class ClientEntrypoint implements ClientModInitializer {
         }
         try {
             FileWriter fileWriter = new FileWriter(config);
-            fileWriter.write(gson.toJson(cloudConfigData));
+            fileWriter.write(gson.toJson(ExtendedClouds.CONFIG));
             fileWriter.close();
         } catch (IOException e) {
             //logError("Config file could not be saved", false);
