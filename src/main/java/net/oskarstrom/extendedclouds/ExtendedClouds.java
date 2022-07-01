@@ -19,6 +19,7 @@ public class ExtendedClouds implements ClientModInitializer {
         loadConfig();
     }
 
+
     public static void loadConfig() {
         File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "extended-clouds.json");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -35,6 +36,7 @@ public class ExtendedClouds implements ClientModInitializer {
         ExtendedClouds.CONFIG = new Config();
         saveConfig();
     }
+
     public static void saveConfig() {
         File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "extended-clouds.json");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
