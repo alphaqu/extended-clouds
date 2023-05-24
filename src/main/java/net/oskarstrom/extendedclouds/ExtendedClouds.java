@@ -1,9 +1,10 @@
 package net.oskarstrom.extendedclouds;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.io.FileReader;
@@ -28,6 +29,8 @@ public class ExtendedClouds implements ClientModInitializer {
                 FileReader fileReader = new FileReader(config);
                 ExtendedClouds.CONFIG = gson.fromJson(fileReader, Config.class);
                 fileReader.close();
+                // check if config file is invalid
+                if (CONFIG == null) CONFIG = new Config();
                 saveConfig();
                 return;
             } catch (IOException ignored) {}
