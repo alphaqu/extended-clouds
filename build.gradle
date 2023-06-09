@@ -1,4 +1,7 @@
 plugins {
+	id 'com.matthewprenger.cursegradle' version '1.4.0'
+	id "com.modrinth.minotaur" version "2.+"
+
 	id 'fabric-loom' version '0.12-SNAPSHOT'
 	id 'maven-publish'
 }
@@ -51,19 +54,60 @@ jar {
 	}
 }
 
-// configure the maven publication
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
+modrinth {
+	token = project.hasProperty("modrinthApiKey") ? project.modrinthApiKey : ""
+	projectId = 'SRvY3a39'
+	changelog = file("changelog.md").getText()
+	versionNumber = project.version
+	versionName = "$project.version".split("\\+")[0] + " for $project.minecraft_version"
+	uploadFile = remapJar
+	versionType = "release"
+	gameVersions = ['1.19.3']
+	loaders = ['fabric', 'quilt']
+}
+
+curseforge {
+	apiKey = project.hasProperty("curseForgeApiKey") ? project.curseForgeApiKey : ""
+	project {
+		id = '624368'
+		changelogType = "markdown"
+		changelog = file("changelog.md")
+		releaseType = 'release'
+
+		addGameVersion "1.19.3"
+		addGameVersion "Fabric"
+		addGameVersion "Quilt"
+		addGameVersion "Java 17"
+
+		mainArtifact(remapJar) {
+			displayName = "$project.version".split("\\+")[0] + " for $project.minecraft_version"
 		}
 	}
+	options {
+		forgeGradleIntegration = false
+	}
+}
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+tasks.register("publishMod") {
+	dependsOn 'modrinth'
+	dependsOn 'curseforge'
+}
+
+// configure the maven publication
+publishing {
 	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+		maven {
+			name = "notalpha"
+			url = "https://notalpha.dev/maven/releases"
+			credentials(PasswordCredentials)
+			authentication {
+				basic(BasicAuthentication)
+			}
+		}
+	}
+	publications {
+		maven(MavenPublication) {
+			from components.java
+		}
 	}
 }
