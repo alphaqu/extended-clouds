@@ -1,4 +1,4 @@
-package net.oskarstrom.extendedclouds.mixin;
+package dev.notalpha.extendedclouds.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.option.CloudRenderMode;
 import net.minecraft.client.render.*;
@@ -14,18 +15,16 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
-import org.objectweb.asm.Opcodes;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import static net.oskarstrom.extendedclouds.ExtendedClouds.CONFIG;
+import static dev.notalpha.extendedclouds.ExtendedClouds.CONFIG;
 
 @Mixin(WorldRenderer.class)
 public abstract class WorldRendererMixin {
@@ -33,9 +32,6 @@ public abstract class WorldRendererMixin {
 	private int viewDistance;
 	private static final float OFFSET = 1f / 256f;
 
-	@Shadow
-	@Nullable
-	private CloudRenderMode lastCloudsRenderMode;
 	@Shadow
 	private boolean cloudsDirty;
 	@Shadow
@@ -59,6 +55,7 @@ public abstract class WorldRendererMixin {
 	@Shadow private Vec3d lastCloudsColor;
 	@Shadow @Final private MinecraftClient client;
 	@Shadow @Final private static Identifier CLOUDS;
+	@Shadow @Nullable private CloudRenderMode lastCloudRenderMode;
 	private float oldFogEnd = 0;
 
 	// Async clouds
@@ -102,12 +99,12 @@ public abstract class WorldRendererMixin {
 			int posX = (int)Math.floor(x);
 			int posY = (int)Math.floor(y / 4.0);
 			int posZ = (int)Math.floor(z);
-			if (posX != this.lastCloudsBlockX || posY != this.lastCloudsBlockY || posZ != this.lastCloudsBlockZ || this.client.options.getCloudRenderMode() != this.lastCloudsRenderMode || this.lastCloudsColor.squaredDistanceTo(color) > 2.0E-4) {
+			if (posX != this.lastCloudsBlockX || posY != this.lastCloudsBlockY || posZ != this.lastCloudsBlockZ || this.client.options.getCloudRenderModeValue() != this.lastCloudRenderMode || this.lastCloudsColor.squaredDistanceTo(color) > 2.0E-4) {
 				this.lastCloudsBlockX = posX;
 				this.lastCloudsBlockY = posY;
 				this.lastCloudsBlockZ = posZ;
 				this.lastCloudsColor = color;
-				this.lastCloudsRenderMode = this.client.options.getCloudRenderMode();
+				this.lastCloudRenderMode = this.client.options.getCloudRenderModeValue();
 				this.cloudsDirty = true;
 			}
 
@@ -146,7 +143,7 @@ public abstract class WorldRendererMixin {
 			}
 
 
-			RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+			RenderSystem.setShader(GameRenderer::getPositionTexColorNormalProgram);
 			RenderSystem.setShaderTexture(0, CLOUDS);
 			BackgroundRenderer.setFogBlack();
 			matrices.push();
@@ -154,7 +151,7 @@ public abstract class WorldRendererMixin {
 			matrices.translate((-fracX) + (this.cloudsMeshX - posX), fracY - ((this.cloudsMeshY - posY) * 4.0), (-fracZ) + (this.cloudsMeshZ - posZ));
 			if (this.cloudsBuffer != null) {
 				this.cloudsBuffer.bind();
-				int u = this.lastCloudsRenderMode == CloudRenderMode.FANCY ? 0 : 1;
+				int u = this.lastCloudRenderMode == CloudRenderMode.FANCY ? 0 : 1;
 
 				for(int v = u; v < 2; ++v) {
 					if (v == 0) {
@@ -163,7 +160,7 @@ public abstract class WorldRendererMixin {
 						RenderSystem.colorMask(true, true, true, true);
 					}
 
-					Shader shader = RenderSystem.getShader();
+					ShaderProgram shader = RenderSystem.getShader();
 					this.cloudsBuffer.draw(matrices.peek().getPositionMatrix(), projectionMatrix, shader);
 				}
 
@@ -178,7 +175,7 @@ public abstract class WorldRendererMixin {
 	}
 
 	@Inject(
-			method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V",
+			method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FDDD)V",
 			at = @At(
 					value = "INVOKE",
 					target = "Lnet/minecraft/client/util/math/MatrixStack;push()V"
@@ -190,7 +187,7 @@ public abstract class WorldRendererMixin {
 	}
 
 	@Inject(
-			method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V",
+			method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FDDD)V",
 			at = @At(
 					value = "INVOKE",
 					target = "Lnet/minecraft/client/util/math/MatrixStack;pop()V"

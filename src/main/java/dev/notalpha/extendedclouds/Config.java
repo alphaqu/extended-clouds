@@ -1,4 +1,4 @@
-package net.oskarstrom.extendedclouds;
+package dev.notalpha.extendedclouds;
 
 public class Config {
     @SuppressWarnings("FieldCanBeLocal")

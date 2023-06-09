@@ -1,4 +1,4 @@
-package net.oskarstrom.extendedclouds;
+package dev.notalpha.extendedclouds;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

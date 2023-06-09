@@ -14,7 +14,7 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "net.oskarstrom.extendedclouds.ExtendedClouds"
+      "dev.notalpha.extendedclouds.ExtendedClouds"
     ]
   },
   "mixins": [
