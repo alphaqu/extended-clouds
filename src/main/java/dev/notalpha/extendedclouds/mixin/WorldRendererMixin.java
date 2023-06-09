@@ -115,7 +115,7 @@ public abstract class WorldRendererMixin {
 							this.cloudsBuffer.close();
 						}
 
-						this.cloudsBuffer = new VertexBuffer();
+						this.cloudsBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
 						BufferBuilder.BuiltBuffer builtBuffer = cloudBuildTask.get();
 						this.cloudsBuffer.bind();
 						this.cloudsBuffer.upload(builtBuffer);

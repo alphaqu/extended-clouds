@@ -62,7 +62,7 @@ modrinth {
 	versionName = "$project.version".split("\\+")[0] + " for $project.minecraft_version"
 	uploadFile = remapJar
 	versionType = "release"
-	gameVersions = ['1.19.3']
+	gameVersions = ['1.20']
 	loaders = ['fabric', 'quilt']
 }
 
@@ -74,7 +74,7 @@ curseforge {
 		changelog = file("changelog.md")
 		releaseType = 'release'
 
-		addGameVersion "1.19.3"
+		addGameVersion "1.20"
 		addGameVersion "Fabric"
 		addGameVersion "Quilt"
 		addGameVersion "Java 17"
