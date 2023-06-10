@@ -2,6 +2,8 @@ package dev.notalpha.extendedclouds;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileReader;
@@ -10,6 +12,7 @@ import java.io.IOException;
 
 public class ExtendedClouds {
     public static Config CONFIG;
+    public static final Logger LOG = LoggerFactory.getLogger("extended-clouds");
 
     public static void init() {
         loadConfig();
@@ -26,7 +29,9 @@ public class ExtendedClouds {
                 fileReader.close();
                 saveConfig();
                 return;
-            } catch (IOException ignored) {}
+            } catch (IOException exception) {
+                LOG.error("Creating new config because of reading error.", exception);
+            }
         }
 
         ExtendedClouds.CONFIG = new Config();
@@ -45,7 +50,7 @@ public class ExtendedClouds {
             fileWriter.write(gson.toJson(ExtendedClouds.CONFIG));
             fileWriter.close();
         } catch (IOException e) {
-            //logError("Config file could not be saved", false);
+            LOG.error("Log file could not be saved", e);
         }
     }
 
