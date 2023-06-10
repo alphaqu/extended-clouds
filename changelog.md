@@ -1,2 +1,2 @@
 # Features
-- 1.20
+- Added Forge and Quilt support with a single jar

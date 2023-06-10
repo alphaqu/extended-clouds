@@ -3,7 +3,7 @@
   "id": "extendedclouds",
   "version": "${version}",
   "name": "Extended Clouds",
-  "icon": "assets/extendedclouds/icon.png",
+  "icon": "extendedclouds/icon.png",
   "description": "Makes clouds render further out.",
   "authors": [
     "notequalalpha"
@@ -14,7 +14,7 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "dev.notalpha.extendedclouds.ExtendedClouds"
+      "dev.notalpha.extendedclouds.fabric.ExtendedCloudsFabric"
     ]
   },
   "mixins": [
