@@ -184,7 +184,7 @@ public abstract class WorldRendererMixin {
 	)
 	private void fixFoxStart(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, double d, double e, double f, CallbackInfo ci) {
 		oldFogEnd = RenderSystem.getShaderFogEnd();
-		RenderSystem.setShaderFogEnd((viewDistanceModified() * 8) * 12);
+		RenderSystem.setShaderFogEnd((float) (oldFogEnd * ExtendedClouds.CONFIG.cloudRenderDistanceMultiplier));
 	}
 
 	@Inject(
