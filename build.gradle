@@ -1,113 +1,129 @@
 plugins {
-	id 'com.matthewprenger.cursegradle' version '1.4.0'
-	id "com.modrinth.minotaur" version "2.+"
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id "com.modrinth.minotaur" version "2.+"
 
-	id 'fabric-loom' version '0.12-SNAPSHOT'
-	id 'maven-publish'
+    id "architectury-plugin" version "3.4-SNAPSHOT"
+    id "dev.architectury.loom" version "1.1-SNAPSHOT" apply false
+
+    id "io.github.pacifistmc.forgix" version "1.2.6"
+
+    id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+architectury {
+    minecraft = rootProject.minecraft_version
+}
+subprojects {
+    apply plugin: "dev.architectury.loom"
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
 
-repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+    dependencies {
+        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+        mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
+    }
 }
 
-dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+allprojects {
+    apply plugin: "java"
+    apply plugin: "architectury-plugin"
+    apply plugin: "maven-publish"
+
+    archivesBaseName = rootProject.archives_base_name
+    version = rootProject.mod_version
+    group = rootProject.maven_group
+
+    repositories {
+        // Add repositories to retrieve artifacts from in here.
+        // You should only use this when depending on other mods because
+        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
+        // for more information about repositories.
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+        options.release = 17
+    }
+
+    java {
+        withSourcesJar()
+    }
 }
 
-processResources {
-	inputs.property "version", project.version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
-	}
+forgix {
+    group = rootProject.maven_group
+    mergedJarName = rootProject.archives_base_name + "-" + project.mod_version + ".jar"
+    outputDir = "build/libs/Merged"
 }
 
-tasks.withType(JavaCompile).configureEach {
-	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-	it.options.release = 17
+
+String getFileName() {
+    return "build/libs/Merged/" + rootProject.archives_base_name + "-" + project.mod_version + ".jar";
 }
 
-java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
-}
-
-jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
-	}
+tasks.register("buildMod") {
+    dependsOn 'fabric:build'
+    dependsOn 'forge:build'
+    finalizedBy 'mergeJars'
 }
 
 modrinth {
-	token = project.hasProperty("modrinthApiKey") ? project.modrinthApiKey : ""
-	projectId = 'SRvY3a39'
-	changelog = file("changelog.md").getText()
-	versionNumber = project.version
-	versionName = "$project.version".split("\\+")[0] + " for $project.minecraft_version"
-	uploadFile = remapJar
-	versionType = "release"
-	gameVersions = ['1.19.3']
-	loaders = ['fabric', 'quilt']
+    token = project.hasProperty("modrinthApiKey") ? project.modrinthApiKey : ""
+    projectId = 'SRvY3a39'
+    changelog = file("changelog.md").getText()
+    versionNumber = project.version
+    versionName = "$project.version".split("\\+")[0] + " for $project.minecraft_version"
+    uploadFile = getFileName()
+    versionType = "release"
+    gameVersions = ['1.19.3', '1.19.4']
+    loaders = ['fabric', 'quilt', 'forge']
 }
 
 curseforge {
-	apiKey = project.hasProperty("curseForgeApiKey") ? project.curseForgeApiKey : ""
-	project {
-		id = '624368'
-		changelogType = "markdown"
-		changelog = file("changelog.md")
-		releaseType = 'release'
+    apiKey = project.hasProperty("curseForgeApiKey") ? project.curseForgeApiKey : ""
+    project {
+        id = '624368'
+        changelogType = "markdown"
+        changelog = file("changelog.md")
+        releaseType = 'release'
 
-		addGameVersion "1.19.3"
-		addGameVersion "Fabric"
-		addGameVersion "Quilt"
-		addGameVersion "Java 17"
+        addGameVersion "1.19.3"
+        addGameVersion "1.19.4"
+        addGameVersion "Forge"
+        addGameVersion "Fabric"
+        addGameVersion "Quilt"
+        addGameVersion "Java 17"
 
-		mainArtifact(remapJar) {
-			displayName = "$project.version".split("\\+")[0] + " for $project.minecraft_version"
-		}
-	}
-	options {
-		forgeGradleIntegration = false
-	}
+        mainArtifact(getFileName()) {
+            displayName = "$project.version".split("\\+")[0] + " for $project.minecraft_version"
+        }
+    }
+    options {
+        forgeGradleIntegration = false
+    }
 }
 
 tasks.register("publishMod") {
-	dependsOn 'modrinth'
-	dependsOn 'curseforge'
+    dependsOn buildMod
+    finalizedBy 'modrinth'
+    finalizedBy 'curseforge'
 }
 
 // configure the maven publication
 publishing {
-	repositories {
-		maven {
-			name = "notalpha"
-			url = "https://notalpha.dev/maven/releases"
-			credentials(PasswordCredentials)
-			authentication {
-				basic(BasicAuthentication)
-			}
-		}
-	}
-	publications {
-		maven(MavenPublication) {
-			from components.java
-		}
-	}
+    repositories {
+        maven {
+            name = "notalpha"
+            url = "https://notalpha.dev/maven/releases"
+            credentials(PasswordCredentials)
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
 }
